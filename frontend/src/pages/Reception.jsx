@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plus, ArrowRight, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import api from "../services/api";
@@ -96,113 +96,111 @@ function Reception() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="text-slate-500 hover:text-slate-700">
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className="text-2xl font-semibold text-slate-800">
-              Recepción y Control de Taller
-            </h1>
-          </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700"
-          >
-            <Plus size={18} /> Nueva recepción
-          </button>
-        </div>
+    <div className="max-w-6xl mx-auto">
+      <div className="flex items-center justify-end mb-6">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 bg-ember text-white px-4 py-2 rounded hover:bg-ember-dark transition"
+        >
+          <Plus size={18} /> Nueva recepción
+        </button>
+      </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-600 uppercase text-xs">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-600 uppercase text-xs">
+            <tr>
+              <th className="px-4 py-3 text-left">Cliente</th>
+              <th className="px-4 py-3 text-left">Motocicleta</th>
+              <th className="px-4 py-3 text-left">Falla reportada</th>
+              <th className="px-4 py-3 text-left">Ingreso</th>
+              <th className="px-4 py-3 text-left">Estatus</th>
+              <th className="px-4 py-3 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {isLoading && (
               <tr>
-                <th className="px-4 py-3 text-left">Cliente</th>
-                <th className="px-4 py-3 text-left">Motocicleta</th>
-                <th className="px-4 py-3 text-left">Falla reportada</th>
-                <th className="px-4 py-3 text-left">Ingreso</th>
-                <th className="px-4 py-3 text-left">Estatus</th>
-                <th className="px-4 py-3 text-right">Acciones</th>
+                <td
+                  colSpan={6}
+                  className="px-4 py-6 text-center text-slate-400"
+                >
+                  Cargando...
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {isLoading && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-4 py-6 text-center text-slate-400"
+            )}
+            {!isLoading && receptions.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-6 text-center text-slate-400"
+                >
+                  Sin recepciones registradas
+                </td>
+              </tr>
+            )}
+            {!isLoading &&
+              receptions.map((reception) => {
+                const customer = reception.Motorcycle?.Customer;
+                const moto = reception.Motorcycle;
+                const canAdvance = reception.status !== "ENTREGADO";
+                return (
+                  <tr
+                    key={reception.id}
+                    className="hover:bg-slate-50 align-top"
                   >
-                    Cargando...
-                  </td>
-                </tr>
-              )}
-              {!isLoading && receptions.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-4 py-6 text-center text-slate-400"
-                  >
-                    Sin recepciones registradas
-                  </td>
-                </tr>
-              )}
-              {!isLoading &&
-                receptions.map((reception) => {
-                  const customer = reception.Motorcycle?.Customer;
-                  const moto = reception.Motorcycle;
-                  const canAdvance = reception.status !== "ENTREGADO";
-                  return (
-                    <tr
-                      key={reception.id}
-                      className="hover:bg-slate-50 align-top"
-                    >
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-slate-700">
-                          {customer?.fullName}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {customer?.phone}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-slate-600">
-                          {moto?.brand} {moto?.model}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {moto?.licensePlate}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600 max-w-xs">
-                        {reception.reportedFailure}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500 text-xs">
-                        {new Date(reception.entryDate).toLocaleString("es-MX")}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium ${STATUS_COLORS[reception.status]}`}
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-slate-700">
+                        {customer?.fullName}
+                      </p>
+                      <p className="text-xs text-slate-400 font-mono">
+                        {customer?.phone}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-slate-600">
+                        {moto?.brand} {moto?.model}
+                      </p>
+                      <p className="text-xs text-slate-400 font-mono">
+                        {moto?.licensePlate}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600 max-w-xs">
+                      {reception.reportedFailure}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs font-mono">
+                      {new Date(reception.entryDate).toLocaleString("es-MX")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${STATUS_COLORS[reception.status]}`}
+                      >
+                        {STATUS_LABELS[reception.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          to={`/service-orders/${reception.id}`}
+                          className="flex items-center gap-1 text-steel hover:text-slate-800 text-xs"
                         >
-                          {STATUS_LABELS[reception.status]}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
+                          <ClipboardList size={14} /> Orden
+                        </Link>
                         {canAdvance && (
                           <button
                             onClick={() => handleAdvanceStatus(reception)}
-                            className="flex items-center gap-1 text-slate-500 hover:text-slate-800 text-xs ml-auto"
+                            className="flex items-center gap-1 text-slate-500 hover:text-slate-800 text-xs"
                           >
                             Avanzar <ArrowRight size={14} />
                           </button>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
       </div>
 
       <ReceptionFormModal
@@ -215,5 +213,3 @@ function Reception() {
 }
 
 export default Reception;
-
-//

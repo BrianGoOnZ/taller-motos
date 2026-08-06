@@ -13,6 +13,7 @@ import inventoryRoutes from "./routes/inventoryRoutes.js";
 import customerRoutes from "./routes/customerRoutes.js";
 import motorcycleRoutes from "./routes/motorcycleRoutes.js";
 import receptionRoutes from "./routes/receptionRoutes.js";
+import serviceOrderRoutes from "./routes/serviceOrderRoutes.js";
 import swaggerSpec from "./config/swagger.js";
 import { globalLimiter } from "./middlewares/rateLimiter.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
@@ -43,9 +44,7 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/motorcycles", motorcycleRoutes);
 app.use("/api/reception", receptionRoutes);
-
-// Rutas de módulos se registran aquí conforme se implementen
-// app.use('/api/service-orders', serviceOrderRoutes);
+app.use("/api/service-orders", serviceOrderRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
@@ -64,8 +63,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-// Es el punto de entrada principal del servidor Express.
-// Inicia las conexiones a MySQL y Redis, configura la seguridad de la aplicación
-// (Helmet, CORS, Rate Limiters), registra los middlewares globales, monta las rutas de la API,
-// publica la documentación de Swagger y enciende el servidor en el puerto designado.
